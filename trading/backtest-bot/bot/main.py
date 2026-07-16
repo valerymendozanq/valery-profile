@@ -19,6 +19,7 @@ import time
 from typing import List
 
 from .backtest import build_trades, print_report
+from .research import run_improvement_study
 from .config import CONFIG
 from .data import Candle, fetch_candles
 from .execution import UnsafeModeError, preflight, get_broker, execution_symbol
@@ -185,6 +186,7 @@ def main(argv: List[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="MNQ EMA 9/21 executable bot (paper-first).")
     g = p.add_mutually_exclusive_group()
     g.add_argument("--backfill", action="store_true", help="replay real history + print trade list")
+    g.add_argument("--improve", action="store_true", help="honest study: param sweep, regime filter, weekly")
     g.add_argument("--scan", action="store_true", help="evaluate the latest closed candle once")
     g.add_argument("--status", action="store_true", help="print mode/config/position")
     g.add_argument("--broker-check", action="store_true", help="verify the broker connection (paper only)")
@@ -195,6 +197,10 @@ def main(argv: List[str] | None = None) -> int:
 
     if args.backfill:
         cmd_backfill(args.years)
+        return 0
+
+    if args.improve:
+        run_improvement_study()
         return 0
 
     # Every non-backfill command touches state and enforces mode safety.

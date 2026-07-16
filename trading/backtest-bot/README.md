@@ -37,6 +37,7 @@ cd trading/backtest-bot
 pip install -r requirements.txt      # no third-party deps; stdlib only
 
 python run.py --backfill --years 3   # replay real history, print the trade list
+python run.py --improve              # honest study: param sweep, 200-EMA filter, weekly
 python run.py --status               # mode, config, broker, open position
 python run.py --scan                 # evaluate the latest closed candle once (paper)
 python run.py --broker-check         # verify the configured broker connection
@@ -68,6 +69,23 @@ Run `--backfill` and compare its trade list to the TradingView Strategy Tester f
 same symbol/timeframe/window. **If they disagree, stop and fix — never run logic you
 haven't verified.** (Small differences are expected: this bot applies explicit
 commission + slippage and fills at the daily close.)
+
+## Honest strategy study (`--improve`)
+`python run.py --improve` runs three checks against real data and reports them straight:
+1. **Parameter sweep** — 8/20 … 10/22 neighbours. A real edge is a *plateau*, not a spike.
+2. **200-EMA regime filter** — only go long above the 200-day EMA; compares PnL + drawdown.
+3. **Weekly timeframe** — same rules, weekly candles (timeframe flips results).
+
+On MNQ the current finding is blunt: 9/21 is a genuine plateau (not overfit), the regime
+filter cuts drawdown, but **nothing beats buy-and-hold** — EMA 9/21 is a Bitcoin-shaped
+tool and the Nasdaq grinds. Match the strategy to the asset; don't borrow a backtest.
+
+## Tests
+Deterministic, no-network unit tests (signals, backtest math, broker safety, mode gating):
+```bash
+python -m unittest discover -s tests -p 'test_*.py' -v
+```
+These run in CI (`.github/workflows/ci.yml`) alongside the paper-bot typecheck on every push.
 
 ## Modes & safety rails
 - `MODE=paper` (default) — the only mode that runs. Execution is simulated.
