@@ -1,0 +1,9 @@
+{
+  "_comment": "Merge the 'tradingview' entry into your existing ~/.claude/.mcp.json mcpServers object. Do NOT overwrite other servers. Replace <HOME> with your absolute home path (e.g. /Users/valy or /home/valy).",
+  "mcpServers": {
+    "tradingview": {
+      "command": "node",
+      "args": ["<HOME>/tradingview-mcp/src/server.js"]
+    }
+  }
+}

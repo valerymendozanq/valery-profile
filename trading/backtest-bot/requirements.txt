@@ -1,0 +1,3 @@
+# Standard library only for the core bot (urllib, sqlite3, argparse, csv, json).
+# No third-party packages are required to run --backfill or the paper daily loop.
+# (Kept as a file so `pip install -r requirements.txt` is a no-op that documents this.)
