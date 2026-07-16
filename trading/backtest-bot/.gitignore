@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+data/state.db
+data/ledger.csv
+data/learnings.md
+data/bot.log
+*.log

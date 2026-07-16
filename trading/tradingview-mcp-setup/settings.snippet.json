@@ -1,0 +1,8 @@
+{
+  "_comment": "Merge into ~/.claude/settings.json. If permissions.allow already exists, add the entry to it — do not overwrite existing rules. Restart Claude Code after saving.",
+  "permissions": {
+    "allow": [
+      "mcp__tradingview__*"
+    ]
+  }
+}

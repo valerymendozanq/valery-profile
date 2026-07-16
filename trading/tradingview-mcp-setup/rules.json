@@ -1,0 +1,29 @@
+{
+  "_comment": "Trading rules file for the TradingView MCP, retargeted to Nasdaq micro futures. Place at ~/tradingview-mcp/rules.json. Edit freely — this is YOUR rule set, not advice.",
+  "watchlist": {
+    "primary": ["CME_MINI:MNQ1!", "CME_MINI:NQ1!"],
+    "proxies": ["NASDAQ:QQQ", "NASDAQ:NDX"],
+    "context": ["TVC:NDQ", "FRED:VXNCLS", "TVC:US10Y", "TVC:DXY"]
+  },
+  "timeframes_to_check": ["1W", "1D", "4H"],
+  "strategy": {
+    "name": "EMA 9/21 crossover (from The Backtest Machine)",
+    "asset": "MNQ (Micro E-mini Nasdaq-100)",
+    "timeframe": "1D",
+    "entry": "9 EMA closes above 21 EMA -> long, long-only",
+    "exit": "9 EMA closes below 21 EMA -> flat",
+    "note": "EMA 9/21 was the winner on Bitcoin, not the Nasdaq. On MNQ it has historically underperformed buy-and-hold. Re-test on your window before trusting it."
+  },
+  "bias_criteria": {
+    "bullish": "Price above 50D EMA, 9 EMA above 21 EMA on the daily, higher highs and higher lows on 4H",
+    "bearish": "Price below 50D EMA, 9 EMA below 21 EMA on the daily, lower highs and lower lows on 4H",
+    "neutral": "Price chopping around the 50D EMA, EMAs entangled, no clear structure"
+  },
+  "risk_rules": {
+    "max_risk_per_trade": "1% of portfolio",
+    "min_rr_ratio": 2,
+    "contract_multiplier_usd_per_point": 2,
+    "no_trades_during": ["US CPI release", "FOMC", "quad witching", "thin holiday sessions"]
+  },
+  "indicators_i_care_about": ["EMA (9)", "EMA (21)", "EMA (50)", "RSI (14)", "MACD (12, 26, 9)", "Volume"]
+}

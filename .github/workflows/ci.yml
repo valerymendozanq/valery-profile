@@ -1,0 +1,41 @@
+name: trading CI
+
+on:
+  push:
+    branches: ["**"]
+    paths: ["trading/**", ".github/workflows/ci.yml"]
+  pull_request:
+    paths: ["trading/**", ".github/workflows/ci.yml"]
+
+jobs:
+  paper-bot:
+    name: paper-bot (TypeScript typecheck)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trading/paper-bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: trading/paper-bot/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+
+  backtest-bot:
+    name: backtest-bot (Python compile + tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trading/backtest-bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Byte-compile all modules
+        run: python -m compileall -q bot run.py
+      - name: Run unit tests (no network)
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
