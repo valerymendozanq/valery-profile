@@ -73,6 +73,27 @@ This installs a `launchd` agent that runs `--scan` once a day (even after reboot
 runs fire on next wake). Everything stays **paper** — the schedule changes *when* the bot
 runs, never *what* it's allowed to do.
 
+## Live paper trading via Tradovate DEMO (real futures API, real MNQ)
+Tradovate is a real futures broker; its **demo** environment gives you a real API and
+real MNQ contracts with **fake money**. Get API credentials from the Tradovate **API
+Access** page, then:
+```bash
+export BROKER=tradovate_demo
+export TRADOVATE_USERNAME=... TRADOVATE_PASSWORD=...
+export TRADOVATE_CID=...      TRADOVATE_SEC=...
+python run.py --broker-check        # authenticates, confirms it's a DEMO account
+python run.py --scan                # routes a real MNQ order to the demo account
+```
+Guardrails (identical philosophy to the Alpaca adapter):
+- **Demo host only.** It accepts exactly `https://demo.tradovateapi.com/v1` and
+  **hard-refuses** the live host — no real-money code path exists.
+- Credentials are read from the environment, never source/logs.
+- Orders are flagged `isAutomated: true` (Tradovate requires it) and target a real MNQ
+  contract (`TRADOVATE_SYMBOL=MNQ` auto-resolves the front month, or set e.g. `MNQM5`).
+- **Prop-firm note:** many evaluation firms restrict or ban automated trading. This
+  adapter is for the personal Tradovate **demo** only — check any firm's rules before
+  pointing a bot at a paid eval.
+
 ## Live paper trading via Alpaca (optional)
 By default the bot uses the local `sim` broker (no network venue). To place **real orders
 on an Alpaca _paper_ account** (fake money, real API), set these and re-run:

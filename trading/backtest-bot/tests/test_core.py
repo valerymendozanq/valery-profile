@@ -13,6 +13,7 @@ from bot.data import Candle
 from bot.signals import ema, signal_at, latest_signal
 from bot.research import evaluate
 import bot.brokers.alpaca as alpaca_mod
+import bot.brokers.tradovate as tradovate_mod
 import bot.execution as execution_mod
 from bot.brokers.base import BrokerError
 from bot.brokers.sim import SimBroker
@@ -89,6 +90,30 @@ class TestBrokerSafety(unittest.TestCase):
                 alpaca_mod.AlpacaPaperBroker()
         finally:
             alpaca_mod.CONFIG = orig
+
+    def test_tradovate_refuses_live_host(self):
+        orig = tradovate_mod.CONFIG
+        try:
+            tradovate_mod.CONFIG = replace(
+                orig, tradovate_base_url="https://live.tradovateapi.com/v1",
+                tradovate_username="u", tradovate_password="p",
+                tradovate_cid="1", tradovate_sec="s")
+            with self.assertRaises(BrokerError):
+                tradovate_mod.TradovateDemoBroker()
+        finally:
+            tradovate_mod.CONFIG = orig
+
+    def test_tradovate_requires_creds(self):
+        orig = tradovate_mod.CONFIG
+        try:
+            tradovate_mod.CONFIG = replace(
+                orig, tradovate_base_url="https://demo.tradovateapi.com/v1",
+                tradovate_username="", tradovate_password="",
+                tradovate_cid="", tradovate_sec="")
+            with self.assertRaises(BrokerError):
+                tradovate_mod.TradovateDemoBroker()
+        finally:
+            tradovate_mod.CONFIG = orig
 
 
 class TestMemory(unittest.TestCase):

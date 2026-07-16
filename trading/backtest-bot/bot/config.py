@@ -43,7 +43,7 @@ class Config:
     mode: str = _get("MODE", "paper")
     # Capital cap (required for any non-paper mode)
     max_capital: float = _getf("MAX_CAPITAL", 0.0)
-    # Broker: sim (local simulation, default) / alpaca_paper (Alpaca PAPER account)
+    # Broker: sim (default) / alpaca_paper / tradovate_demo
     broker: str = _get("BROKER", "sim")
     # Alpaca paper credentials + host. Paper host is the only accepted host.
     alpaca_key: str = _get("ALPACA_API_KEY_ID", "")
@@ -51,6 +51,17 @@ class Config:
     alpaca_base_url: str = _get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
     # Executable symbol for a real broker (Alpaca has no futures; QQQ tracks the NDX).
     alpaca_symbol: str = _get("ALPACA_SYMBOL", "QQQ")
+    # Tradovate DEMO credentials + host. The demo host is the only accepted host.
+    tradovate_base_url: str = _get("TRADOVATE_BASE_URL", "https://demo.tradovateapi.com/v1")
+    tradovate_username: str = _get("TRADOVATE_USERNAME", "")
+    tradovate_password: str = _get("TRADOVATE_PASSWORD", "")
+    tradovate_app_id: str = _get("TRADOVATE_APP_ID", "MNQLearningBot")
+    tradovate_app_version: str = _get("TRADOVATE_APP_VERSION", "1.0")
+    tradovate_cid: str = _get("TRADOVATE_CID", "")
+    tradovate_sec: str = _get("TRADOVATE_SEC", "")
+    tradovate_account_spec: str = _get("TRADOVATE_ACCOUNT_SPEC", "")  # blank = first account
+    # Tradovate trades a specific contract (e.g. MNQM5). "MNQ" = auto-resolve front month.
+    tradovate_symbol: str = _get("TRADOVATE_SYMBOL", "MNQ")
     # Telegram (optional; alerts are logged if unset — never a hard dependency)
     telegram_token: str = _get("TELEGRAM_TOKEN", "")
     telegram_chat_id: str = _get("TELEGRAM_CHAT_ID", "")

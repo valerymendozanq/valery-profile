@@ -17,6 +17,7 @@ from .config import CONFIG
 from .brokers.base import Broker, BrokerError
 from .brokers.sim import SimBroker
 from .brokers.alpaca import AlpacaPaperBroker
+from .brokers.tradovate import TradovateDemoBroker
 
 
 class UnsafeModeError(RuntimeError):
@@ -53,10 +54,19 @@ def get_broker() -> Broker:
         return SimBroker()
     if choice == "alpaca_paper":
         return AlpacaPaperBroker()  # ctor enforces paper host + key presence
-    raise BrokerError(f"Unknown BROKER '{CONFIG.broker}'. Use 'sim' or 'alpaca_paper'.")
+    if choice == "tradovate_demo":
+        return TradovateDemoBroker()  # ctor enforces demo host + cred presence
+    raise BrokerError(f"Unknown BROKER '{CONFIG.broker}'. Use 'sim', 'alpaca_paper', or 'tradovate_demo'.")
 
 
 def execution_symbol() -> str:
-    """The symbol orders are actually placed against. For a real broker with no futures,
-    that's the ETF proxy; for sim it's whatever SYMBOL the strategy runs on."""
-    return CONFIG.alpaca_symbol if CONFIG.broker.lower() == "alpaca_paper" else CONFIG.symbol
+    """The symbol orders are actually placed against.
+    - alpaca_paper: an ETF proxy (Alpaca has no futures).
+    - tradovate_demo: a real MNQ futures contract.
+    - sim: whatever SYMBOL the strategy runs on."""
+    choice = CONFIG.broker.lower()
+    if choice == "alpaca_paper":
+        return CONFIG.alpaca_symbol
+    if choice == "tradovate_demo":
+        return CONFIG.tradovate_symbol
+    return CONFIG.symbol
