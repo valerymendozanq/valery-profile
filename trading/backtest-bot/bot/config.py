@@ -43,6 +43,14 @@ class Config:
     mode: str = _get("MODE", "paper")
     # Capital cap (required for any non-paper mode)
     max_capital: float = _getf("MAX_CAPITAL", 0.0)
+    # Broker: sim (local simulation, default) / alpaca_paper (Alpaca PAPER account)
+    broker: str = _get("BROKER", "sim")
+    # Alpaca paper credentials + host. Paper host is the only accepted host.
+    alpaca_key: str = _get("ALPACA_API_KEY_ID", "")
+    alpaca_secret: str = _get("ALPACA_API_SECRET_KEY", "")
+    alpaca_base_url: str = _get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
+    # Executable symbol for a real broker (Alpaca has no futures; QQQ tracks the NDX).
+    alpaca_symbol: str = _get("ALPACA_SYMBOL", "QQQ")
     # Telegram (optional; alerts are logged if unset — never a hard dependency)
     telegram_token: str = _get("TELEGRAM_TOKEN", "")
     telegram_chat_id: str = _get("TELEGRAM_CHAT_ID", "")

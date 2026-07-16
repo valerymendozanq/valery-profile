@@ -9,7 +9,7 @@ trading, no API keys, nothing fabricated.
 | Folder | Source doc | What it is | Runs here? |
 |--------|-----------|-----------|-----------|
 | [`paper-bot/`](./paper-bot) | Trading Bot V2 (6-prompt flow) | TypeScript/Node paper bot: no-memory baseline → two-file memory → raw-vs-memory comparison | ✅ yes |
-| [`backtest-bot/`](./backtest-bot) | The Backtest Machine | Python executable bot: `--backfill` trade list, SQLite state, paper/testnet/live gating | ✅ yes |
+| [`backtest-bot/`](./backtest-bot) | The Backtest Machine | Python executable bot: `--backfill` trade list, SQLite state, paper/testnet/live gating, optional **Alpaca paper** broker | ✅ yes |
 | [`tradingview-mcp-setup/`](./tradingview-mcp-setup) | Copy-Paste Kit | TradingView MCP configs + local setup/verification guide | ⚠️ config only — verify on your own machine |
 
 ## Quick start
@@ -23,6 +23,7 @@ npm run replay:memory     # memory-gated pass
 cd ../backtest-bot
 python run.py --backfill --years 3   # trade list + verdict vs buy-and-hold
 python run.py --scan                 # one paper evaluation of the latest close
+python run.py --broker-check         # optional: verify an Alpaca PAPER connection
 
 # 3) TradingView MCP — see tradingview-mcp-setup/README.md (run locally)
 ```
@@ -43,7 +44,9 @@ The `--backfill` verdict prints this automatically from whatever the live data s
 
 ## Ground rules baked into everything here
 - **Paper only.** No live venue adapter ships. `live` mode refuses to start; `testnet`
-  halts safely. Execution is always simulated.
+  halts safely. Execution is either local simulation or an **Alpaca _paper_** account
+  (fake money) — the Alpaca adapter hard-refuses the live host, so real-money trading has
+  no code path.
 - **Real data or a loud failure.** No invented candles, no faked or seeded trades.
 - **No secrets.** Market data is a public endpoint; there are no API keys in this repo.
 - **Sizing from a cap you set** (`QUANTITY`/`MAX_POSITION`), never from an account balance.

@@ -20,7 +20,11 @@ bot/
   data.py        real daily OHLCV from Yahoo (urllib, stdlib only)
   signals.py     EMA 9/21 crossover
   backtest.py    --backfill engine (commission + slippage applied)
-  execution.py   paper simulate; testnet/live gated + refused
+  execution.py   MODE gating + broker factory
+  brokers/
+    base.py      broker interface (Account / Position / OrderResult)
+    sim.py       local simulation (default)
+    alpaca.py    Alpaca PAPER adapter — paper host only, hard-refuses live
   state.py       SQLite so restarts never double-enter
   alerts.py      Telegram if configured, else stdout
   main.py        CLI
@@ -33,10 +37,31 @@ cd trading/backtest-bot
 pip install -r requirements.txt      # no third-party deps; stdlib only
 
 python run.py --backfill --years 3   # replay real history, print the trade list
-python run.py --status               # mode, config, open position
+python run.py --status               # mode, config, broker, open position
 python run.py --scan                 # evaluate the latest closed candle once (paper)
+python run.py --broker-check         # verify the configured broker connection
 python run.py --loop --sleep 86400   # once-per-day loop (paper); Ctrl-C to stop
 ```
+
+## Live paper trading via Alpaca (optional)
+By default the bot uses the local `sim` broker (no network venue). To place **real orders
+on an Alpaca _paper_ account** (fake money, real API), set these and re-run:
+```bash
+export BROKER=alpaca_paper
+export ALPACA_API_KEY_ID=...        # your Alpaca PAPER key
+export ALPACA_API_SECRET_KEY=...    # your Alpaca PAPER secret
+python run.py --broker-check        # confirms PAPER account + connection first
+python run.py --scan                # routes the order through Alpaca paper
+```
+Guardrails baked into the adapter:
+- **Paper host only.** It accepts exactly `https://paper-api.alpaca.markets` and
+  **hard-refuses** the live host — there is no code path to real-money trading.
+- Keys are read from the environment, never from source or logs.
+- `--broker-check` refuses to proceed unless the account reports as paper.
+- **Alpaca has no futures**, so MNQ can't trade there. Orders route to `ALPACA_SYMBOL`
+  (default **QQQ**, which tracks the Nasdaq-100). The strategy signal is still computed on
+  `MNQ=F` daily; QQQ is the executable proxy. Get free paper keys at
+  https://alpaca.markets .
 
 ### Verify against TradingView
 Run `--backfill` and compare its trade list to the TradingView Strategy Tester for the
