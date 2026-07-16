@@ -38,11 +38,40 @@ pip install -r requirements.txt      # no third-party deps; stdlib only
 
 python run.py --backfill --years 3   # replay real history, print the trade list
 python run.py --improve              # honest study: param sweep, 200-EMA filter, weekly
+python run.py --forward --days 650   # simulate the LEARNING bot day-by-day (see it skip)
 python run.py --status               # mode, config, broker, open position
-python run.py --scan                 # evaluate the latest closed candle once (paper)
+python run.py --scan                 # evaluate the latest closed candle once (memory-aware)
 python run.py --broker-check         # verify the configured broker connection
 python run.py --loop --sleep 86400   # once-per-day loop (paper); Ctrl-C to stop
 ```
+
+## The learning memory (the "smart bot")
+The live bot (`--scan` / `--loop`) keeps a two-file memory and adapts:
+- Every long entry is tagged with a **setup signature** — trend regime (price above/below
+  the 200-EMA) + 21-EMA slope, e.g. `above200|slopeUp`.
+- Closed trades are logged to `data/ledger.csv` with their signature and PnL.
+- Before a new long, the bot checks that signature's **real track record**. If it has ≥2
+  closed trades and a net loss, the bot **SKIPs** and writes a plain-English note to
+  `data/learnings.md`. It only ever learns from real closed paper trades — nothing seeded.
+
+Watch it happen without waiting days:
+```bash
+python run.py --forward --days 650
+```
+It replays real MNQ history through the *live* decision logic, so you see it take trades,
+record outcomes, then start skipping setups that lost — and it prints whether the memory
+**helped or hurt** vs. the raw strategy over that window.
+
+## Run it automatically every day (macOS)
+```bash
+python run.py --forward --days 650        # (optional) seed the memory from history first
+bash schedule/install-macos.sh 17         # run --scan daily at 17:00 local (5pm)
+tail -f data/bot.log                       # watch what it does each day
+bash schedule/uninstall-macos.sh           # stop & remove the schedule
+```
+This installs a `launchd` agent that runs `--scan` once a day (even after reboots; missed
+runs fire on next wake). Everything stays **paper** — the schedule changes *when* the bot
+runs, never *what* it's allowed to do.
 
 ## Live paper trading via Alpaca (optional)
 By default the bot uses the local `sim` broker (no network venue). To place **real orders

@@ -80,10 +80,19 @@ class State:
         return int(row["value"]) if row else None
 
     def set_last_processed_time(self, symbol: str, ts: int) -> None:
+        self.meta_set(f"last_ts::{symbol}", str(ts))
+
+    # --- generic meta store (used to remember an open trade's setup signature) ---
+    def meta_get(self, key: str) -> Optional[str]:
+        cur = self.conn.execute("SELECT value FROM meta WHERE key=?", (key,))
+        row = cur.fetchone()
+        return row["value"] if row else None
+
+    def meta_set(self, key: str, value: str) -> None:
         self.conn.execute(
             "INSERT INTO meta(key,value) VALUES(?,?) "
             "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-            (f"last_ts::{symbol}", str(ts)),
+            (key, value),
         )
         self.conn.commit()
 

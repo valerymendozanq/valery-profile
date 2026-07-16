@@ -91,6 +91,36 @@ class TestBrokerSafety(unittest.TestCase):
             alpaca_mod.CONFIG = orig
 
 
+class TestMemory(unittest.TestCase):
+    def test_signature_regime(self):
+        from bot import memory
+        # Long steady uptrend: last bar is above its 200-EMA and slow EMA rising.
+        closes = [100 + i for i in range(260)]
+        sig = memory.signature_at(closes, len(closes) - 1)
+        self.assertTrue(sig.startswith("above200"), sig)
+        self.assertIn("slopeUp", sig)
+
+    def test_should_skip_uses_written_ledger(self):
+        import tempfile, os
+        from bot import memory
+        cwd = os.getcwd()
+        tmp = tempfile.mkdtemp()
+        os.chdir(tmp)
+        try:
+            memory.reset()
+            # Two real losing closed trades of the same signature -> should_skip True.
+            for d, pnl in (("2025-01-01", -500.0), ("2025-02-01", -700.0)):
+                memory.append_row(d, "MNQ=F", "SELL", 20000, 1, "below200|slopeDown",
+                                  "closed LOSS", "paper/sim", "LOSS", pnl)
+            skip, why = memory.should_skip("MNQ=F", "below200|slopeDown")
+            self.assertTrue(skip, why)
+            # A signature with no record -> not skipped.
+            skip2, _ = memory.should_skip("MNQ=F", "above200|slopeUp")
+            self.assertFalse(skip2)
+        finally:
+            os.chdir(cwd)
+
+
 class TestModeGating(unittest.TestCase):
     def test_paper_passes(self):
         execution_mod.preflight("paper")  # must not raise

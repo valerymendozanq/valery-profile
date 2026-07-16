@@ -27,6 +27,14 @@ from .brokers.base import BrokerError
 from .signals import ema, signal_at
 from .state import State
 from .alerts import alert
+from . import memory
+
+
+def _friction_pnl(entry_price: float, exit_price: float) -> float:
+    """Net dollar PnL of one long, applying commission + slippage (index points)."""
+    friction = 2 * CONFIG.commission_per_side + 2 * CONFIG.slippage_points
+    mult = CONFIG.contract_multiplier * CONFIG.quantity
+    return ((exit_price - entry_price) - friction) * mult
 
 
 def _years_to_range(years: int) -> str:
@@ -48,13 +56,14 @@ def cmd_backfill(years: int) -> None:
     print_report(trades, candles)
 
 
-def _evaluate_once(candles: List[Candle]) -> tuple[str, str, Candle]:
+def _evaluate_bar(candles: List[Candle], i: int) -> tuple[str, str, str, Candle]:
+    """Signal + reason + setup signature at bar i (a closed candle)."""
     closes = [c.close for c in candles]
     fast = ema(closes, CONFIG.fast_period)
     slow = ema(closes, CONFIG.slow_period)
-    i = len(candles) - 1
     sig, reason = signal_at(fast, slow, i)
-    return sig, reason, candles[i]
+    setup = memory.signature_at(closes, i)
+    return sig, reason, setup, candles[i]
 
 
 def cmd_scan(state: State) -> None:
@@ -62,13 +71,16 @@ def cmd_scan(state: State) -> None:
     broker = get_broker()  # BrokerError if alpaca config is incomplete/unsafe
     exec_sym = execution_symbol()
 
-    candles = fetch_candles(CONFIG.symbol, CONFIG.interval, "3mo")
-    sig, reason, c = _evaluate_once(candles)
+    # 2y of daily candles so the 200-EMA (used for the setup signature) is warmed up.
+    candles = fetch_candles(CONFIG.symbol, CONFIG.interval, "2y")
+    i = len(candles) - 1
+    sig, reason, setup, c = _evaluate_bar(candles, i)
     ts = c.time
     stamp = dt.datetime.utcnow().isoformat(timespec="seconds")
     tag = f"{CONFIG.mode}/{broker.name}"
     ordersym = f" (orders on {exec_sym})" if exec_sym != CONFIG.symbol else ""
-    print(f"[{stamp}] [scan] {CONFIG.symbol} {c.date} close={c.close:.2f} -> {sig}: {reason}{ordersym}")
+    print(f"[{stamp}] [scan] {CONFIG.symbol} {c.date} close={c.close:.2f} "
+          f"setup={setup} -> {sig}: {reason}{ordersym}")
 
     # Idempotency: never act twice on the same candle.
     if state.last_processed_time(exec_sym) == ts:
@@ -81,30 +93,53 @@ def cmd_scan(state: State) -> None:
         bpos = broker.get_position(exec_sym)
         in_pos = bpos is not None
         held_qty = int(bpos.qty) if bpos else 0
+        entry_price = bpos.avg_price if bpos else 0.0
     else:
         srow = state.get_position(exec_sym)
         in_pos = srow is not None
         held_qty = int(srow["quantity"]) if srow else 0
+        entry_price = float(srow["entry_price"]) if srow else 0.0
 
     if sig == "BUY" and not in_pos:
         if CONFIG.quantity > CONFIG.max_position:
             print(f"[scan] SKIP: quantity {CONFIG.quantity} > max position {CONFIG.max_position}.")
-            state.log_action(ts, exec_sym, "SKIP", c.close, CONFIG.quantity, tag, reason)
+            memory.append_row(c.date, exec_sym, "SKIP", c.close, CONFIG.quantity, setup,
+                              "quantity exceeds max position", tag, "SKIPPED", None)
         else:
-            res = broker.submit(exec_sym, "BUY", CONFIG.quantity, c.close)
-            _report_order(res)
-            if res.ok:
-                state.open_position(exec_sym, c.close, CONFIG.quantity, ts)
-                state.log_action(ts, exec_sym, "BUY", c.close, CONFIG.quantity, tag, reason)
-                alert(f"{exec_sym} BUY {CONFIG.quantity} @ {c.close:.2f} ({tag})")
+            skip, why = memory.should_skip(exec_sym, setup)
+            if skip:
+                print(f"[scan] 🧠 SKIP (learned) — {why}")
+                memory.append_row(c.date, exec_sym, "SKIP", c.close, CONFIG.quantity, setup,
+                                  why, tag, "SKIPPED", None)
+                alert(f"{exec_sym} SKIP long — {why}")
+            else:
+                res = broker.submit(exec_sym, "BUY", CONFIG.quantity, c.close)
+                _report_order(res)
+                if res.ok:
+                    state.open_position(exec_sym, c.close, CONFIG.quantity, ts)
+                    state.meta_set(f"open_sig::{exec_sym}", setup)
+                    memory.append_row(c.date, exec_sym, "BUY", c.close, CONFIG.quantity, setup,
+                                      why, tag, "OPEN", None)
+                    alert(f"{exec_sym} BUY {CONFIG.quantity} @ {c.close:.2f} ({tag}) setup={setup}")
     elif sig == "SELL" and in_pos:
         qty = held_qty or CONFIG.quantity
+        entry_sig = state.meta_get(f"open_sig::{exec_sym}") or setup
+        pnl = _friction_pnl(entry_price, c.close)
+        outcome = "WIN" if pnl > 0 else "LOSS" if pnl < 0 else "FLAT"
         res = broker.submit(exec_sym, "SELL", qty, c.close)
         _report_order(res)
         if res.ok:
             state.close_position(exec_sym)
-            state.log_action(ts, exec_sym, "SELL", c.close, qty, tag, reason)
-            alert(f"{exec_sym} SELL {qty} @ {c.close:.2f} ({tag})")
+            memory.append_row(c.date, exec_sym, "SELL", c.close, qty, entry_sig,
+                              f"closed {outcome}", tag, outcome, pnl)
+            alert(f"{exec_sym} SELL {qty} @ {c.close:.2f} pnl ${pnl:,.0f} ({outcome})")
+            rec = memory.signature_record(exec_sym, entry_sig)
+            if rec.trades >= memory.MIN_SAMPLES and rec.net_pnl < 0:
+                memory.append_learning(
+                    f"{exec_sym} setup '{entry_sig}' is net-losing "
+                    f"({rec.losses}/{rec.trades} losers, net ${rec.net_pnl:,.0f}) — "
+                    f"future longs with this setup will be skipped.")
+                print(f"[scan] 🧠 Lesson recorded: setup '{entry_sig}' now flagged as net-losing.")
     elif sig == "BUY" and in_pos:
         print("[scan] BUY signal but already long — holding the open position.")
     elif sig == "SELL" and not in_pos:
@@ -113,6 +148,76 @@ def cmd_scan(state: State) -> None:
         print(f"[scan] HOLD — position={'open' if in_pos else 'flat'}, no fresh actionable cross.")
 
     state.set_last_processed_time(exec_sym, ts)
+
+
+def cmd_forward(days: int) -> None:
+    """Simulate the LIVE memory bot day-by-day over recent history so you can watch it
+    learn: it takes trades, records outcomes, and starts SKIPping setups that have lost.
+    Resets memory first so it's a clean run. Paper simulation only."""
+    print(f"[forward] Simulating the memory bot day-by-day on {CONFIG.symbol} "
+          f"(last {days} trading days). Resetting memory for a clean run.\n")
+    candles = fetch_candles(CONFIG.symbol, CONFIG.interval, "5y")
+    closes = [c.close for c in candles]
+    fast = ema(closes, CONFIG.fast_period)
+    slow = ema(closes, CONFIG.slow_period)
+    memory.reset()
+
+    start = max(210, len(candles) - days)  # keep 200-EMA warmup
+    pos = None            # memory bot's open long: {price, sig, date}
+    raw_pos = None        # no-memory baseline's open long: entry price
+    taken = skipped = 0
+    mem_pnl = raw_pnl = 0.0
+
+    for i in range(start, len(candles)):
+        s, _ = signal_at(fast, slow, i)
+        setup = memory.signature_at(closes, i)
+        c = candles[i]
+
+        # --- memory bot ---
+        if s == "BUY" and pos is None:
+            skip, why = memory.should_skip(CONFIG.symbol, setup)
+            if skip:
+                skipped += 1
+                memory.append_row(c.date, CONFIG.symbol, "SKIP", c.close, CONFIG.quantity,
+                                  setup, why, "paper/sim", "SKIPPED", None)
+                print(f"  {c.date}  🧠 SKIP long   setup={setup}")
+            else:
+                pos = {"price": c.close, "sig": setup}
+                memory.append_row(c.date, CONFIG.symbol, "BUY", c.close, CONFIG.quantity,
+                                  setup, why, "paper/sim", "OPEN", None)
+                print(f"  {c.date}  BUY  @ {c.close:>8.0f}  setup={setup}")
+        elif s == "SELL" and pos is not None:
+            pnl = _friction_pnl(pos["price"], c.close)
+            mem_pnl += pnl
+            taken += 1
+            outcome = "WIN" if pnl > 0 else "LOSS" if pnl < 0 else "FLAT"
+            memory.append_row(c.date, CONFIG.symbol, "SELL", c.close, CONFIG.quantity,
+                              pos["sig"], f"closed {outcome}", "paper/sim", outcome, pnl)
+            rec = memory.signature_record(CONFIG.symbol, pos["sig"])
+            if rec.trades >= memory.MIN_SAMPLES and rec.net_pnl < 0:
+                memory.append_learning(
+                    f"{CONFIG.symbol} setup '{pos['sig']}' net-losing "
+                    f"({rec.losses}/{rec.trades}, ${rec.net_pnl:,.0f}) — skipping future longs.")
+            print(f"  {c.date}  SELL @ {c.close:>8.0f}  pnl ${pnl:>8,.0f}  {outcome:4}  setup={pos['sig']}")
+            pos = None
+
+        # --- no-memory baseline (takes every signal) ---
+        if s == "BUY" and raw_pos is None:
+            raw_pos = c.close
+        elif s == "SELL" and raw_pos is not None:
+            raw_pnl += _friction_pnl(raw_pos, c.close)
+            raw_pos = None
+
+    diff = mem_pnl - raw_pnl
+    verdict = "HELPED" if diff > 0 else "HURT" if diff < 0 else "made no difference"
+    print("\n[forward] Summary")
+    print(f"  Trades taken (memory bot) : {taken}")
+    print(f"  Longs skipped by memory   : {skipped}")
+    print(f"  Net PnL WITH memory       : ${mem_pnl:,.0f}")
+    print(f"  Net PnL NO memory (raw)   : ${raw_pnl:,.0f}")
+    print(f"  Memory {verdict}: ${diff:,.0f} vs the raw strategy over this window.")
+    print(f"  Ledger + lessons written to {memory.LEDGER_PATH} and {memory.LEARNINGS_PATH}.")
+    print("  (Paper simulation. Learns only from real closed trades. Not financial advice.)")
 
 
 def _report_order(res) -> None:
@@ -187,11 +292,13 @@ def main(argv: List[str] | None = None) -> int:
     g = p.add_mutually_exclusive_group()
     g.add_argument("--backfill", action="store_true", help="replay real history + print trade list")
     g.add_argument("--improve", action="store_true", help="honest study: param sweep, regime filter, weekly")
-    g.add_argument("--scan", action="store_true", help="evaluate the latest closed candle once")
+    g.add_argument("--forward", action="store_true", help="simulate the memory bot day-by-day and show what it learned")
+    g.add_argument("--scan", action="store_true", help="evaluate the latest closed candle once (memory-aware)")
     g.add_argument("--status", action="store_true", help="print mode/config/position")
     g.add_argument("--broker-check", action="store_true", help="verify the broker connection (paper only)")
     g.add_argument("--loop", action="store_true", help="run the once-per-day loop")
     p.add_argument("--years", type=int, default=3, help="years of history for --backfill (default 3)")
+    p.add_argument("--days", type=int, default=250, help="trading days for --forward (default 250)")
     p.add_argument("--sleep", type=int, default=86400, help="loop sleep seconds (default 86400)")
     args = p.parse_args(argv)
 
@@ -201,6 +308,10 @@ def main(argv: List[str] | None = None) -> int:
 
     if args.improve:
         run_improvement_study()
+        return 0
+
+    if args.forward:
+        cmd_forward(args.days)
         return 0
 
     # Every non-backfill command touches state and enforces mode safety.
