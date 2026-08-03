@@ -255,7 +255,9 @@ footer{background:var(--dark);padding:44px 60px;display:flex;align-items:center;
         <div class="pr tot"><span>Total</span><span id="gt"></span></div>
       </div>
       <button class="btn-res" id="reserve-btn">Reserve Suite 507</button>
-      <button class="btn-wa" id="whatsapp-btn">Message Host on WhatsApp</button>
+      <div id="paypal-container" style="margin:4px 0 8px"></div>
+      <div id="pay-msg" class="fine" style="display:none;color:#82DFA0;margin-top:0"></div>
+      <button class="btn-wa" id="whatsapp-btn">Have a question? Message the Host</button>
       <div class="fine">No platform fees · Secure direct payment<br>Free cancellation up to 30 days prior</div>
     </div>
   </div>
@@ -312,6 +314,12 @@ footer{background:var(--dark);padding:44px 60px;display:flex;align-items:center;
 <script>
 const NIGHTLY=345, CLEANING=50, DISC=0.10;
 const WA_NUMBER='12107935186';
+// ── PAYMENTS ────────────────────────────────────────────────────────────────
+// Paste your PayPal Client ID between the quotes below to turn on direct card /
+// PayPal checkout. Get it free at https://developer.paypal.com → Apps & Credentials
+// → create an app under your LIVE business account → copy the "Client ID".
+// Until this is set, guests book by messaging you (no payment is taken).
+const PAYPAL_CLIENT_ID='REPLACE_WITH_YOUR_PAYPAL_CLIENT_ID';
 let bookedRanges=[];
 
 // Fetch live availability from Airbnb-synced JSON
@@ -417,6 +425,63 @@ document.getElementById('reserve-btn').addEventListener('click',()=>{
 document.getElementById('whatsapp-btn').addEventListener('click',()=>{
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi! I have a question about Suite 507 at Landmark Cozumel.')}`,'_blank');
 });
+
+// ── Direct checkout (PayPal Smart Buttons) ──────────────────────────────────
+function currentTotal(){
+  if(!s0||!s1)return 0;
+  const nights=Math.round((pd(s1)-pd(s0))/86400000);
+  const base=nights*NIGHTLY;
+  const discAmt=returning?Math.round(base*DISC):0;
+  return base-discAmt+CLEANING;
+}
+function initPayPal(){
+  // Not configured yet → leave the "Reserve" (message host) button as the CTA.
+  if(!PAYPAL_CLIENT_ID || PAYPAL_CLIENT_ID.indexOf('REPLACE')===0) return;
+  const s=document.createElement('script');
+  s.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(PAYPAL_CLIENT_ID)+'&currency=USD&intent=capture';
+  s.onload=()=>{
+    // PayPal loaded: it becomes the primary "pay & book" action.
+    document.getElementById('reserve-btn').style.display='none';
+    paypal.Buttons({
+      style:{layout:'vertical',color:'gold',shape:'rect',label:'pay'},
+      onClick:(data,actions)=>{
+        if(!s0||!s1||currentTotal()<=0){
+          alert('Please pick your check-in and check-out dates on the calendar first.');
+          return actions.reject();
+        }
+        return actions.resolve();
+      },
+      createOrder:(data,actions)=>actions.order.create({
+        purchase_units:[{
+          description:'Suite 507 · Landmark Cozumel ('+document.getElementById('ci').value+' → '+document.getElementById('co').value+')',
+          amount:{value:currentTotal().toFixed(2)}
+        }]
+      }),
+      onApprove:(data,actions)=>actions.order.capture().then(details=>{
+        const name=(details.payer&&details.payer.name&&details.payer.name.given_name)||'guest';
+        const m=document.getElementById('pay-msg');
+        m.style.display='block';
+        m.innerHTML='✓ Payment received — thank you, '+name+'! Your stay '+
+          document.getElementById('ci').value+' → '+document.getElementById('co').value+
+          ' is confirmed. A receipt has been emailed to you.';
+        // Also open WhatsApp so the host gets an instant booking notification.
+        const total=document.getElementById('gt').textContent||'';
+        const msg='✅ NEW DIRECT BOOKING (paid via PayPal)\nSuite 507 Landmark Cozumel\nCheck-in: '+
+          document.getElementById('ci').value+'\nCheck-out: '+document.getElementById('co').value+
+          '\nGuests: '+document.getElementById('gs').value+(total?' | Paid: '+total:'')+'\nGuest: '+name;
+        window.open('https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
+      }),
+      onError:(err)=>{
+        const m=document.getElementById('pay-msg');
+        m.style.display='block';m.style.color='#DC8282';
+        m.textContent='Payment could not be completed. Please try again or message the host.';
+      }
+    }).render('#paypal-container');
+  };
+  s.onerror=()=>{/* SDK blocked/offline → keep the message-host button as fallback */};
+  document.head.appendChild(s);
+}
+initPayPal();
 render();
 </script>
 </body>
