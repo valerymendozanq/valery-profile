@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caribeden · Suite 507 Landmark Cozumel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#B8964A;--gold-light:#D4AF6A;
+  --dark:#0A0A0F;--dark2:#13131A;--mid:#1E1E28;
+  --cream:#FAF8F4;--warm:#F0EBE0;
+  --text-light:#F8F6F2;--text-muted:#8A8275;
+}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--dark)}
+nav{background:rgba(10,10,15,0.97);display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(184,150,74,0.18)}
+.logo-wrap{display:flex;flex-direction:column;gap:1px}
+.logo-main{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:var(--gold-light);letter-spacing:0.12em}
+.logo-sub{font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(184,150,74,0.5)}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(248,246,242,0.55);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--gold-light)}
+.nav-cta{background:transparent;border:1px solid rgba(184,150,74,0.6);color:var(--gold);font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;padding:9px 22px;cursor:pointer;transition:all 0.2s}
+.nav-cta:hover{background:var(--gold);color:var(--dark)}
+.hero{background:var(--dark2);min-height:540px;display:flex;align-items:flex-end;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 70% 40%,#0D1E30 0%,#0A0A0F 60%)}
+.hero-lines{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(184,150,74,0.03) 80px,rgba(184,150,74,0.03) 81px)}
+.hero-number{position:absolute;right:48px;top:50%;transform:translateY(-50%);font-family:'Playfair Display',serif;font-size:220px;font-weight:500;color:rgba(184,150,74,0.04);line-height:1;user-select:none}
+.hero-content{position:relative;z-index:1;padding:64px 60px 60px;flex:1}
+.hero-tag{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:22px;display:flex;align-items:center;gap:14px}
+.hero-tag::before{content:'';width:28px;height:1px;background:var(--gold)}
+h1{font-family:'Playfair Display',serif;font-size:62px;font-weight:400;line-height:1.08;color:var(--text-light);margin-bottom:14px}
+h1 em{font-style:italic;color:var(--gold-light)}
+.hero-sub{font-size:14px;color:rgba(248,246,242,0.5);line-height:1.75;max-width:380px;margin-bottom:36px;font-weight:300}
+.hero-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:32px}
+.price-from{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
+.price-big{font-family:'Playfair Display',serif;font-size:48px;font-weight:400;color:var(--gold-light);line-height:1}
+.price-unit{font-size:12px;color:var(--text-muted)}
+.hero-btns{display:flex;gap:12px}
+.btn-gold{background:var(--gold);color:var(--dark);border:none;font-family:'Outfit',sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;padding:14px 34px;cursor:pointer;transition:all 0.2s;font-weight:500}
+.btn-gold:hover{background:var(--gold-light)}
+.btn-ghost{background:transparent;color:rgba(248,246,242,0.7);border:1px solid rgba(248,246,242,0.2);font-family:'Outfit',sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;padding:14px 34px;cursor:pointer;transition:all 0.2s}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.hero-right{position:relative;z-index:1;width:280px;min-height:540px;border-left:1px solid rgba(184,150,74,0.12);display:flex;flex-direction:column;justify-content:center}
+.hero-stat{padding:28px 36px;border-bottom:1px solid rgba(184,150,74,0.1)}
+.hero-stat:last-child{border-bottom:none}
+.stat-val{font-family:'Playfair Display',serif;font-size:38px;font-weight:400;color:var(--gold-light);line-height:1}
+.stat-lbl{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(248,246,242,0.35);margin-top:5px}
+.section{padding:64px 60px}
+.eyebrow{font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--gold)}
+h2{font-family:'Playfair Display',serif;font-size:40px;font-weight:400;line-height:1.2;margin-bottom:40px}
+.amenities-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(0,0,0,0.07);border:1px solid rgba(0,0,0,0.07)}
+.amenity{background:var(--cream);padding:28px 22px;transition:background 0.2s}
+.amenity:hover{background:var(--warm)}
+.amenity-icon{width:38px;height:38px;border:1px solid rgba(184,150,74,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.amenity-icon svg{width:17px;height:17px;stroke:var(--gold);fill:none;stroke-width:1.5}
+.amenity-name{font-size:13px;font-weight:500;letter-spacing:0.04em;margin-bottom:5px}
+.amenity-detail{font-size:12px;color:var(--text-muted);line-height:1.55}
+.cal-section{background:var(--dark2);padding:64px 60px}
+.cal-section h2{color:var(--text-light)}
+.cal-layout{display:grid;grid-template-columns:1fr 308px;gap:44px;align-items:start}
+.cal-wrap{background:var(--mid);border:1px solid rgba(184,150,74,0.18)}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid rgba(184,150,74,0.12)}
+.cal-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--text-light);letter-spacing:0.04em}
+.cal-btn{background:transparent;border:1px solid rgba(184,150,74,0.25);color:var(--gold);width:34px;height:34px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.cal-btn:hover{background:rgba(184,150,74,0.12)}
+.day-names{display:grid;grid-template-columns:repeat(7,1fr);padding:14px 20px 0}
+.dn{text-align:center;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(248,246,242,0.3);padding:8px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:6px 20px 20px;gap:3px}
+.cd{height:42px;display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(248,246,242,0.75);cursor:pointer;transition:all 0.15s;border-radius:2px}
+.cd:hover:not(.bk):not(.ps){background:rgba(184,150,74,0.15);color:var(--gold-light)}
+.cd.ps{color:rgba(248,246,242,0.18);cursor:default}
+.cd.bk{background:rgba(160,50,50,0.18);color:rgba(220,130,130,0.6);cursor:not-allowed;text-decoration:line-through}
+.cd.sel{background:var(--gold);color:var(--dark);font-weight:500}
+.cd.rng{background:rgba(184,150,74,0.18);color:var(--gold-light)}
+.cd.em{cursor:default}
+.legend{display:flex;gap:22px;padding:0 20px 18px}
+.li{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(248,246,242,0.38)}
+.ld{width:11px;height:11px;border-radius:1px}
+.sync-note{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(248,246,242,0.3);padding:0 20px 16px;letter-spacing:0.04em}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#82DFA0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.panel{background:var(--mid);border:1px solid rgba(184,150,74,0.22);padding:30px}
+.panel h3{font-family:'Playfair Display',serif;font-size:23px;font-weight:400;color:var(--text-light);margin-bottom:22px}
+.save-badge{background:rgba(50,160,80,0.12);border:1px solid rgba(50,160,80,0.28);color:#82DFA0;font-size:11px;padding:7px 14px;text-align:center;letter-spacing:0.07em;margin-bottom:20px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px}
+.field input,.field select{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(184,150,74,0.18);color:var(--text-light);font-family:'Outfit',sans-serif;font-size:13px;padding:11px 14px;outline:none;transition:border-color 0.2s}
+.field input:focus,.field select:focus{border-color:rgba(184,150,74,0.6)}
+.field select option{background:var(--dark2)}
+.returning-toggle{display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer}
+.toggle-box{width:18px;height:18px;border:1px solid rgba(184,150,74,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.toggle-box.checked{background:var(--gold);border-color:var(--gold)}
+.toggle-box.checked::after{content:'✓';font-size:11px;color:var(--dark);font-weight:500}
+.toggle-label{font-size:12px;color:rgba(248,246,242,0.6);letter-spacing:0.04em}
+.price-box{background:rgba(0,0,0,0.28);border:1px solid rgba(184,150,74,0.12);padding:18px;margin:22px 0}
+.pr{display:flex;justify-content:space-between;font-size:12px;color:rgba(248,246,242,0.55);padding:5px 0}
+.pr.tot{font-size:14px;font-weight:500;color:var(--gold-light);border-top:1px solid rgba(184,150,74,0.18);margin-top:10px;padding-top:13px}
+.btn-res{width:100%;background:var(--gold);border:none;color:var(--dark);font-family:'Outfit',sans-serif;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;padding:15px;cursor:pointer;font-weight:500;margin-bottom:10px;transition:background 0.2s}
+.btn-res:hover{background:var(--gold-light)}
+.btn-wa{width:100%;background:transparent;border:1px solid rgba(90,190,100,0.35);color:#82DFA0;font-family:'Outfit',sans-serif;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;padding:13px;cursor:pointer;transition:all 0.2s}
+.btn-wa:hover{background:rgba(90,190,100,0.07)}
+.fine{text-align:center;font-size:11px;color:rgba(248,246,242,0.25);letter-spacing:0.04em;margin-top:11px;line-height:1.6}
+.reviews-section{background:var(--warm);padding:64px 60px}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.rc{background:var(--cream);padding:30px;border-bottom:2px solid var(--gold)}
+.stars{color:var(--gold);font-size:12px;letter-spacing:3px;margin-bottom:14px}
+.rtext{font-family:'Playfair Display',serif;font-size:16px;font-style:italic;line-height:1.75;margin-bottom:18px}
+.rname{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted)}
+footer{background:var(--dark);padding:44px 60px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(184,150,74,0.12)}
+.fl{display:flex;flex-direction:column;gap:6px}
+.fl-main{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold-light);letter-spacing:0.1em}
+.fl-sub{font-size:11px;color:rgba(248,246,242,0.25);letter-spacing:0.08em}
+.fc{display:flex;gap:24px}
+.fc a{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(248,246,242,0.4);text-decoration:none;transition:color 0.2s}
+.fc a:hover{color:var(--gold-light)}
+
+.hero-ocean{position:absolute;inset:0;overflow:hidden;z-index:0}
+.wave{position:absolute;left:-50%;width:200%;border-radius:43% 57% 40% 60% / 50% 50% 50% 50%}
+.wave1{height:280px;bottom:-60px;background:rgba(20,80,120,0.25);animation:wave1 7s ease-in-out infinite}
+.wave2{height:260px;bottom:-80px;background:rgba(15,60,100,0.2);animation:wave2 9s ease-in-out infinite}
+.wave3{height:240px;bottom:-100px;background:rgba(10,40,80,0.18);animation:wave3 11s ease-in-out infinite}
+.wave4{height:220px;bottom:-120px;background:rgba(5,30,60,0.15);animation:wave1 13s ease-in-out infinite reverse}
+@keyframes wave1{
+  0%{transform:translateX(0) rotate(0deg)}
+  50%{transform:translateX(6%) rotate(2deg)}
+  100%{transform:translateX(0) rotate(0deg)}
+}
+@keyframes wave2{
+  0%{transform:translateX(0) rotate(0deg)}
+  50%{transform:translateX(-5%) rotate(-1.5deg)}
+  100%{transform:translateX(0) rotate(0deg)}
+}
+@keyframes wave3{
+  0%{transform:translateX(0) rotate(0deg)}
+  50%{transform:translateX(4%) rotate(1deg)}
+  100%{transform:translateX(0) rotate(0deg)}
+}
+.shimmer{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(5,25,50,0.5) 100%);pointer-events:none}
+.glimmer{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(150,210,255,0.4);animation:glimmer 4s ease-in-out infinite}
+.g1{bottom:35%;left:15%;animation-delay:0s}
+.g2{bottom:45%;left:35%;animation-delay:1s}
+.g3{bottom:30%;left:55%;animation-delay:2s}
+.g4{bottom:40%;left:75%;animation-delay:0.5s}
+.g5{bottom:25%;left:88%;animation-delay:1.5s}
+@keyframes glimmer{0%,100%{opacity:0;transform:scale(1)}50%{opacity:1;transform:scale(2)}}
+
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.4;z-index:0}
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="logo-wrap">
+    <div class="logo-main">Caribeden</div>
+    <div class="logo-sub">Suite 507 · Cozumel</div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#amenities">The Suite</a></li>
+    <li><a href="#amenities">Amenities</a></li>
+    <li><a href="#booking">Availability</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})">Reserve Direct</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-number">507</div>
+  <video class="hero-video" autoplay muted loop playsinline>
+  <source src="6667405-uhd_4096_2160_30fps.mp4" type="video/mp4">
+</video>
+<div class="hero-content">
+    <div class="hero-tag">Landmark Cozumel · Unit 507</div>
+    <h1>The Eden of<br><em> The Caribbean</em></h1>
+    <p class="hero-sub">A refined 5th-floor suite at Landmark Cozumel — ocean views, zero platform fees, and a host who actually picks up the phone.</p>
+    <div class="hero-price-row">
+      <span class="price-from">From</span>
+      <span class="price-big">$345</span>
+      <span class="price-unit">/ night</span>
+    </div>
+    <div class="hero-btns">
+      <button class="btn-gold" onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})">Check Availability</button>
+      <button class="btn-ghost" onclick="document.getElementById('amenities').scrollIntoView({behavior:'smooth'})">Explore the Suite</button>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-stat"><div class="stat-val">5.0</div><div class="stat-lbl">Avg Rating</div></div>
+    <div class="hero-stat"><div class="stat-val">9</div><div class="stat-lbl">5-Star Reviews</div></div>
+    <div class="hero-stat"><div class="stat-val">$0</div><div class="stat-lbl">Platform Fees</div></div>
+    <div class="hero-stat"><div class="stat-val">10%</div><div class="stat-lbl">Returning Guest Discount</div></div>
+  </div>
+</section>
+
+<section class="section" id="amenities">
+  <div class="eyebrow">The Suite</div>
+  <h2>Every detail,<br>considered</h2>
+  <div class="amenities-grid">
+    <div class="amenity"><div class="amenity-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div><div class="amenity-name">2 Bed · 2 Bath</div><div class="amenity-detail">Sleeps up to 4 guests in comfort</div></div>
+    <div class="amenity"><div class="amenity-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div><div class="amenity-name">5th Floor Ocean Views</div><div class="amenity-detail">Panoramic Caribbean Sea from every room</div></div>
+    <div class="amenity"><div class="amenity-icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg></div><div class="amenity-name">Full Gourmet Kitchen</div><div class="amenity-detail">Premium appliances, fully stocked</div></div>
+    <div class="amenity"><div class="amenity-icon"><svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div><div class="amenity-name">High-Speed WiFi</div><div class="amenity-detail">Fast fiber internet throughout</div></div>
+    <div class="amenity"><div class="amenity-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div class="amenity-name">Landmark Amenities</div><div class="amenity-detail">Pool, gym, and building concierge</div></div>
+    <div class="amenity"><div class="amenity-icon"><svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="amenity-name">Prime Location</div><div class="amenity-detail">Steps from beach, reefs & restaurants</div></div>
+    <div class="amenity"><div class="amenity-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="amenity-name">Smart TV · Streaming</div><div class="amenity-detail">Netflix, HBO Max, Disney+</div></div>
+    <div class="amenity"><div class="amenity-icon"><svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div><div class="amenity-name">Private Parking</div><div class="amenity-detail">Covered secure spot included</div></div>
+  </div>
+</section>
+
+<section class="cal-section" id="booking">
+  <div class="eyebrow">Availability</div>
+  <h2>Reserve Your Stay</h2>
+  <div class="cal-layout">
+    <div>
+      <div class="cal-wrap">
+        <div class="cal-head">
+          <button class="cal-btn" id="prev">&#8249;</button>
+          <div class="cal-title" id="cal-lbl"></div>
+          <button class="cal-btn" id="next">&#8250;</button>
+        </div>
+        <div class="day-names">
+          <div class="dn">Sun</div><div class="dn">Mon</div><div class="dn">Tue</div>
+          <div class="dn">Wed</div><div class="dn">Thu</div><div class="dn">Fri</div><div class="dn">Sat</div>
+        </div>
+        <div class="cal-grid" id="cgrid"></div>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:var(--gold)"></div>Selected</div>
+          <div class="li"><div class="ld" style="background:rgba(184,150,74,0.25)"></div>In range</div>
+          <div class="li"><div class="ld" style="background:rgba(160,50,50,0.3)"></div>Unavailable</div>
+        </div>
+        <div class="sync-note"><div class="sync-dot"></div><span id="sync-time">Syncing with Airbnb...</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Your Reservation</h3>
+      <div class="save-badge">No service fees — Save ~18% vs Airbnb</div>
+      <div class="field"><label>Check-in</label><input type="text" id="ci" placeholder="Select on calendar" readonly></div>
+      <div class="field"><label>Check-out</label><input type="text" id="co" placeholder="Select on calendar" readonly></div>
+      <div class="field"><label>Guests</label>
+        <select id="gs"><option>1 guest</option><option selected>2 guests</option><option>3 guests</option><option>4 guests</option></select>
+      </div>
+      <div class="returning-toggle" id="ret-toggle">
+        <div class="toggle-box" id="ret-box"></div>
+        <div class="toggle-label">Returning guest — apply 10% discount</div>
+      </div>
+      <div class="price-box" id="pbox" style="display:none">
+        <div class="pr"><span id="nl"></span><span id="nt"></span></div>
+        <div class="pr" id="disc-row" style="display:none"><span>10% returning guest discount</span><span id="disc-amt" style="color:#82DFA0"></span></div>
+        <div class="pr"><span>Cleaning fee</span><span>$50</span></div>
+        <div class="pr"><span>Platform fee</span><span style="color:#82DFA0">$0</span></div>
+        <div class="pr tot"><span>Total</span><span id="gt"></span></div>
+      </div>
+      <button class="btn-res" id="reserve-btn">Reserve Suite 507</button>
+      <button class="btn-wa" id="whatsapp-btn">Message Host on WhatsApp</button>
+      <div class="fine">No platform fees · Secure direct payment<br>Free cancellation up to 30 days prior</div>
+    </div>
+  </div>
+</section>
+
+<section class="reviews-section" id="reviews">
+  <div class="eyebrow">Guest Experiences</div>
+  <h2>What guests say</h2>
+  <div class="reviews-grid">
+    <div class="rc">
+      <div class="stars">★★★★★</div>
+      <div class="rtext">"We had the best time!! Such a wonderful place to relax and unwind. Everyone was so friendly and helpful!! Sandy is a gem and very attentive. We will definitely be back!!!"</div>
+      <div class="rname">Christi · November 2025</div>
+    </div>
+    <div class="rc">
+      <div class="stars">★★★★★</div>
+      <div class="rtext">"The condo was great. Super clean, lovely building, beautiful view of the ocean from all rooms! We thought the location was ideal. The Cozumel scuba diving was fabulous."</div>
+      <div class="rname">Stephen · February 2025</div>
+    </div>
+    <div class="rc">
+      <div class="stars">★★★★★</div>
+      <div class="rtext">"Sandy was our host and was incredibly responsive and helpful. She went above & beyond to help in whatever way she could. We loved the building and felt secure the entire trip."</div>
+      <div class="rname">Malini · January 2025</div>
+    </div>
+    <div class="rc">
+      <div class="stars">★★★★★</div>
+      <div class="rtext">"Great place to stay in Cozumel. Beautiful view and excellent snorkeling just across the street. Our host was super responsive and accommodating."</div>
+      <div class="rname">Jamie · April 2025</div>
+    </div>
+    <div class="rc">
+      <div class="stars">★★★★★</div>
+      <div class="rtext">"We had a lovely stay at the Landmark. The unit was nicely furnished. We enjoyed the master suite, loved the balcony and the beautiful view of the ocean."</div>
+      <div class="rname">Kristin · April 2024</div>
+    </div>
+    <div class="rc">
+      <div class="stars">★★★★★</div>
+      <div class="rtext">"Amazing stay at the Landmark. The pictures do not do it justice. Anything we needed was a quick message away. Overall I felt at home during our time there."</div>
+      <div class="rname">Kari · February 2024</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fl">
+    <div class="fl-main">Caribeden · Suite 507</div>
+    <div class="fl-sub">Direct bookings · No platform fees · Est. 2021</div>
+  </div>
+  <div class="fc">
+    <a href="https://wa.me/12107935186" target="_blank">WhatsApp</a>
+    <a href="mailto:booking@caribeden.com">Email</a>
+  </div>
+</footer>
+
+<script>
+const NIGHTLY=345, CLEANING=50, DISC=0.10;
+const WA_NUMBER='12107935186';
+let bookedRanges=[];
+
+// Fetch live availability from Airbnb-synced JSON
+fetch('availability.json?v=' + Date.now())
+  .then(r => r.json())
+  .then(data => {
+    bookedRanges = data.ranges || [];
+    render();
+    const updated = new Date(data.updated);
+    const el = document.getElementById('sync-time');
+    if(el) el.textContent = 'Synced ' + updated.toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  })
+  .catch(() => {
+    // fallback to hardcoded if fetch fails
+    bookedRanges = [
+      {start:'2026-04-29',end:'2026-05-01'},
+      {start:'2026-07-19',end:'2026-07-28'}
+    ];
+    render();
+  });
+
+function pad(n){return String(n).padStart(2,'0')}
+function ds(y,m,d){return y+'-'+pad(m+1)+'-'+pad(d)}
+function pd(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function fmt(s){return pd(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function isBooked(dstr){const d=pd(dstr);for(const r of bookedRanges){if(d>=pd(r.start)&&d<pd(r.end))return true;}return false;}
+function hasBookedBetween(a,b){const lo=pd(a<b?a:b),hi=pd(a<b?b:a);for(const r of bookedRanges){if(pd(r.start)<=hi&&pd(r.end)>lo)return true;}return false;}
+const _now=new Date();let yr=_now.getFullYear(),mo=_now.getMonth(),s0=null,s1=null,hov=null,returning=false;
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function render(){
+  document.getElementById('cal-lbl').textContent=MONTHS[mo]+' '+yr;
+  const g=document.getElementById('cgrid');g.innerHTML='';
+  const today=new Date();today.setHours(0,0,0,0);
+  const fd=new Date(yr,mo,1).getDay(),dim=new Date(yr,mo+1,0).getDate();
+  for(let i=0;i<fd;i++){const d=document.createElement('div');d.className='cd em';g.appendChild(d)}
+  for(let day=1;day<=dim;day++){
+    const dstr=ds(yr,mo,day),date=pd(dstr);
+    const d=document.createElement('div');d.textContent=day;
+    let c='cd';
+    if(date<today)c+=' ps';
+    else if(isBooked(dstr))c+=' bk';
+    else{
+      const a=s0?pd(s0):null,b=s1?pd(s1):(hov?pd(hov):null);
+      if(dstr===s0||dstr===s1)c+=' sel';
+      else if(a&&b&&date>Math.min(a,b)&&date<Math.max(a,b))c+=' rng';
+    }
+    d.className=c;
+    if(!c.includes('ps')&&!c.includes('bk')){
+      d.addEventListener('click',()=>click(dstr));
+      d.addEventListener('mouseenter',()=>{hov=dstr;render()});
+      d.addEventListener('mouseleave',()=>{hov=null;render()});
+    }
+    g.appendChild(d);
+  }
+}
+function click(dstr){
+  if(!s0||s1){s0=dstr;s1=null;}
+  else if(dstr===s0){s0=null;}
+  else{
+    const[a,b]=[s0,dstr].sort();
+    if(!hasBookedBetween(a,b)){s0=a;s1=b;updatePanel();}
+    else{s0=dstr;s1=null;}
+  }
+  if(!s1){
+    document.getElementById('ci').value=s0?fmt(s0):'';
+    document.getElementById('co').value='';
+    document.getElementById('pbox').style.display='none';
+  }
+  render();
+}
+function updatePanel(){
+  if(!s0||!s1)return;
+  const nights=Math.round((pd(s1)-pd(s0))/86400000);
+  const base=nights*NIGHTLY;
+  const discAmt=returning?Math.round(base*DISC):0;
+  const total=base-discAmt+CLEANING;
+  document.getElementById('ci').value=fmt(s0);
+  document.getElementById('co').value=fmt(s1);
+  document.getElementById('nl').textContent=nights+' night'+(nights!==1?'s':'')+' × $'+NIGHTLY;
+  document.getElementById('nt').textContent='$'+base.toLocaleString();
+  document.getElementById('disc-row').style.display=returning?'flex':'none';
+  document.getElementById('disc-amt').textContent='-$'+discAmt.toLocaleString();
+  document.getElementById('gt').textContent='$'+total.toLocaleString();
+  document.getElementById('pbox').style.display='block';
+}
+document.getElementById('ret-toggle').addEventListener('click',()=>{
+  returning=!returning;
+  document.getElementById('ret-box').className='toggle-box'+(returning?' checked':'');
+  if(s0&&s1)updatePanel();
+});
+document.getElementById('prev').addEventListener('click',()=>{if(yr===_now.getFullYear()&&mo<=_now.getMonth())return;mo--;if(mo<0){mo=11;yr--;}render();});
+document.getElementById('next').addEventListener('click',()=>{mo++;if(mo>11){mo=0;yr++;}render();});
+document.getElementById('reserve-btn').addEventListener('click',()=>{
+  const ci=document.getElementById('ci').value;
+  const co=document.getElementById('co').value;
+  const guests=document.getElementById('gs').value;
+  const total=document.getElementById('gt').textContent||'';
+  const msg=ci&&co
+    ?`Hi! I'd like to book Suite 507 at Landmark Cozumel.\nCheck-in: ${ci}\nCheck-out: ${co}\nGuests: ${guests}${total?' | Total: '+total:''}`
+    :`Hi! I'd like to book Suite 507 at Landmark Cozumel. Can you help me check availability?`;
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`,'_blank');
+});
+document.getElementById('whatsapp-btn').addEventListener('click',()=>{
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi! I have a question about Suite 507 at Landmark Cozumel.')}`,'_blank');
+});
+render();
+</script>
+</body>
+</html>
