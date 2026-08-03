@@ -361,19 +361,29 @@ function render(){
     let c='cd';
     if(date<today)c+=' ps';
     else if(isBooked(dstr))c+=' bk';
-    else{
-      const a=s0?pd(s0):null,b=s1?pd(s1):(hov?pd(hov):null);
-      if(dstr===s0||dstr===s1)c+=' sel';
-      else if(a&&b&&date>Math.min(a,b)&&date<Math.max(a,b))c+=' rng';
-    }
+    else if(dstr===s0||dstr===s1)c+=' sel';
     d.className=c;
     if(!c.includes('ps')&&!c.includes('bk')){
+      d.dataset.d=dstr;
       d.addEventListener('click',()=>click(dstr));
-      d.addEventListener('mouseenter',()=>{hov=dstr;render()});
-      d.addEventListener('mouseleave',()=>{hov=null;render()});
+      // Hover only repaints the in-range highlight on the existing cells. It must
+      // NOT rebuild the grid: rebuilding mid-interaction makes mousedown and mouseup
+      // land on different nodes, so the browser never fires a click and the calendar
+      // feels frozen (you can't pick any dates).
+      d.addEventListener('mouseenter',()=>{hov=dstr;paintRange()});
+      d.addEventListener('mouseleave',()=>{hov=null;paintRange()});
     }
     g.appendChild(d);
   }
+  paintRange();
+}
+function paintRange(){
+  const a=s0?pd(s0):null,b=s1?pd(s1):(hov?pd(hov):null);
+  document.querySelectorAll('#cgrid .cd[data-d]').forEach(cell=>{
+    const dstr=cell.dataset.d,date=pd(dstr);
+    const inRange=a&&b&&dstr!==s0&&dstr!==s1&&date>Math.min(a,b)&&date<Math.max(a,b);
+    cell.classList.toggle('rng',!!inRange);
+  });
 }
 function click(dstr){
   if(!s0||s1){s0=dstr;s1=null;}
