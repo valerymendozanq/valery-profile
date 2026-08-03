@@ -322,8 +322,8 @@ const WA_NUMBER='12107935186';
 const PAYPAL_CLIENT_ID='REPLACE_WITH_YOUR_PAYPAL_CLIENT_ID';
 let bookedRanges=[];
 
-// Fetch live availability from Airbnb-synced JSON
-fetch('availability.json?v=' + Date.now())
+// Fetch live availability from the Airbnb-synced PHP endpoint
+fetch('availability.php?v=' + Date.now())
   .then(r => r.json())
   .then(data => {
     bookedRanges = data.ranges || [];
